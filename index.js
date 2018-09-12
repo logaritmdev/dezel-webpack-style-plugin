@@ -60,20 +60,20 @@ class DezelStylePlugin {
 
 					let content = this.sources[module.resource]
 
-					switch (path.extname(module.resource)) {
+					if (module.resource.match(/\.ds$/)) {
+						files.ios += content + '\n'
+						files.android += content + '\n'
+						continue
+					}
 
-						case '.styles':
-							files.ios += content + '\n'
-							files.android += content + '\n'
-							break
+					if (module.resource.match(/\.ds.ios$/)) {
+						files.ios += content + '\n'
+						continue
+					}
 
-						case '.ios':
-							files.ios += content + '\n'
-							break
-
-						case '.android':
-							files.android += content + '\n'
-							break
+					if (module.resource.match(/\.ds.android$/)) {
+						files.android += content + '\n'
+						continue
 					}
 				}
 			})
