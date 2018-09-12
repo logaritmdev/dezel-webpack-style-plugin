@@ -1,26 +1,33 @@
 const path = require('path')
 var RawSource = require('webpack-sources').RawSource
 
-let instance = null
 const PLUGIN_NAME = 'Dezel Style Plugin'
+
+let plugin = null
+let ignore = []
 
 class DezelStylePlugin {
 
-	static loader() {
-		return { test: /\.(styles|styles\.ios|styles\.android)$/, use: require.resolve('./loader') }
+	static loader(options = {}) {
+
+		ignore = options.ignore || []
+
+		return { test: /\.(ds|ds\.ios|ds\.android)$/, use: require.resolve('./loader') }
 	}
 
 	static instance(options) {
-		return instance
+		return plugin
 	}
 
 	constructor(options) {
 		this.sources = {}
-		instance = this
+		plugin = this
 	}
 
 	setSource(path, data) {
-		this.sources[path] = data
+		if (this.ignore(path) == false) {
+			this.sources[path] = data
+		}
 	}
 
 	apply(compiler) {
@@ -75,6 +82,19 @@ class DezelStylePlugin {
 			compilation.assets['app.styles.android'] = new RawSource(files.android)
 
 		})
+	}
+
+	ignore(file) {
+
+		for (let regex of ignore) {
+			if (regex instanceof RegExp) {
+				if (regex.test(file)) {
+					return true
+				}
+			}
+		}
+
+		return false
 	}
 }
 
